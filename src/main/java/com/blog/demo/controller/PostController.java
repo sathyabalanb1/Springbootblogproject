@@ -4,12 +4,16 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.blog.demo.dto.PostDto;
 import com.blog.demo.service.PostService;
+
+import jakarta.validation.Valid;
 @Controller
 public class PostController {
 	
@@ -63,7 +67,15 @@ public class PostController {
 	}
 	
 	@PostMapping("/admin/posts")
-	public String createPost(@ModelAttribute PostDto postDto) {
+	public String createPost(@Valid @ModelAttribute("post") PostDto postDto,
+			BindingResult result,
+			Model model) {
+		
+		if(result.hasErrors()) {
+			model.addAttribute("post", postDto);
+			return "admin/create_post";
+		}
+		
 		postDto.setUrl(getUrl(postDto.getTitle()));
 		postService.createPost(postDto);
 		return "redirect:/admin/posts";
@@ -79,5 +91,66 @@ public class PostController {
 		return url;
 		
 	}
+	/*
+	spring-boot-starter-validation
+
+	whenever you want to implement validation in your spring boot project, then make sure that you use spring-boot-starter-validation dependency.
+
+	Well, this starter dependency internally provides bean validation library with hibernate validator as its implementation.
+
+	Well, java basically provides a bean validation standard library and it is just a specification and hibernate validator is the implementation of bean validation library.
+
+	Well, spring boot starter validation dependency provides all the libraries all the libraries that are required to implement a validation.
+
+	if you go inside a spring boot starter validation dependency, it internally provides hibernate validator dependency.
+
+	hibernate validation dependency implements bean validation API.
+
+	jakarta validation api is a standard java api for validation and hibernate validator is a implementation of jakarta validation API.
+
+
+	1. We have to add spring-boot-starter-validation
+	2. we need to add validation annotations to java bean
+	3. We need to enable validation in a handler method
+	4. use BindingResult to check errors and Return to UI
+	5. We need to add the error message in the form
+	
+	*/
+	@GetMapping("/admin/posts/{postId}/edit")
+	public String editPostForm(@PathVariable("postId") Long postId,
+			Model model) {
+		
+		PostDto postDto = postService.findPostById(postId);
+		model.addAttribute("post", postDto);
+		return "admin/edit_post";
+	}
+	
+	@PostMapping("/admin/posts/{postId}")
+	public String updatePost(@PathVariable("postId") Long postId,
+		@Valid	@ModelAttribute("post") PostDto post,
+		BindingResult result,
+		Model model) {
+		
+		if(result.hasErrors()) {
+			model.addAttribute("post",post);
+			return "admin/edit_post";
+		}
+		
+		post.setId(postId);
+		postService.updatePost(post);
+		return "redirect:/admin/posts";
+	}
+	
+	@GetMapping("/admin/posts/{postId}/delete")
+	public String deletePost(@PathVariable("postId") Long postId) {
+	
+		postService.deletePost(postId);
+		return "redirect:/admin/posts";
+	}
+
+
+
+
+
 
 }
