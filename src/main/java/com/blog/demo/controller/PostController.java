@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.blog.demo.dto.CommentDto;
 import com.blog.demo.dto.PostDto;
+import com.blog.demo.service.CommentService;
 import com.blog.demo.service.PostService;
 
 import jakarta.validation.Valid;
@@ -19,10 +21,12 @@ import jakarta.validation.Valid;
 public class PostController {
 	
 	private PostService postService;
+	private CommentService commentService;
 //	spring team recommend to use interface for injecting the dependency to achieve loose coupling
 	
-	public PostController(PostService postService) {
+	public PostController(PostService postService,CommentService commentService) {
 		this.postService = postService;
+		this.commentService=commentService;
 	}
 	
 	@GetMapping("/admin/posts")
@@ -170,8 +174,23 @@ public class PostController {
 		model.addAttribute("posts", posts);
 		return "admin/posts";
 	}
-
-
+	
+	@GetMapping("/admin/posts/comments")
+	public String postComments(Model model) {
+		List<CommentDto>comments = commentService.findAllComments();
+		
+		model.addAttribute("comments", comments);
+		return "admin/comments";
+	}
+	
+	@GetMapping("/admin/posts/comments/{commentId}")
+	public String deleteComment(@PathVariable("commentId") Long commentId) {
+		
+		commentService.deleteComment(commentId);
+		
+		return "redirect:/admin/posts/comments";
+		
+	}
 
 
 }
