@@ -15,12 +15,14 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -48,5 +50,7 @@ public class User {
 	private List<Role>roles=new ArrayList<>();
 	
 	// Here we established bidirectional many to many mapping between user and role
+	
+	
 
 }
