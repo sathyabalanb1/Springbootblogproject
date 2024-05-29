@@ -15,6 +15,8 @@ import com.blog.demo.dto.CommentDto;
 import com.blog.demo.dto.PostDto;
 import com.blog.demo.service.CommentService;
 import com.blog.demo.service.PostService;
+import com.blog.demo.util.ROLE;
+import com.blog.demo.util.SecurityUtils;
 
 import jakarta.validation.Valid;
 @Controller
@@ -31,7 +33,16 @@ public class PostController {
 	
 	@GetMapping("/admin/posts")
 	public String posts(Model model) {
-		List<PostDto> posts = postService.findAllPosts();
+		//List<PostDto> posts = postService.findAllPosts();
+		
+		String  role = SecurityUtils.getRole();
+		List<PostDto>posts = null;
+		if(ROLE.ROLE_ADMIN.name().equals(role)) {
+			posts = postService.findAllPosts();
+		}else {
+			posts = postService.findPostsByUser();
+		}
+	//	List<PostDto>posts = postService.findPostsByUser();
 		model.addAttribute("posts", posts);
 		return "/admin/posts";
 		/*
@@ -177,7 +188,27 @@ public class PostController {
 	
 	@GetMapping("/admin/posts/comments")
 	public String postComments(Model model) {
-		List<CommentDto>comments = commentService.findAllComments();
+	//	List<CommentDto>comments = commentService.findAllComments();
+		
+		String role = SecurityUtils.getRole();
+		
+		List<CommentDto>comments = null;
+		
+		if(ROLE.ROLE_ADMIN.name().equals(role)) {
+			comments = commentService.findAllComments();
+		}else {
+			comments = commentService.findCommentsByPost();
+		}
+		
+	//	List<CommentDto>comments = commentService.findCommentsByPost();
+		
+	//	if (ROLE.ROLE_ADMIN.name().equals(role)) {
+
+//			ROLE.ROLE_ADMIN: This refers to the enum constant ROLE_ADMIN
+
+	//		.name(): This method returns the name of the enum constant as a String.
+
+		//	For the ROLE_ADMIN enum constant, ROLE.ROLE_ADMIN.name() will return the string "ROLE_ADMIN".
 		
 		model.addAttribute("comments", comments);
 		return "admin/comments";

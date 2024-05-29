@@ -3,21 +3,29 @@ package com.blog.demo.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.stereotype.Service;
 
 import com.blog.demo.dto.PostDto;
 import com.blog.demo.entity.Post;
+import com.blog.demo.entity.User;
 import com.blog.demo.mapper.PostMapper;
 import com.blog.demo.repository.PostRepository;
+import com.blog.demo.repository.UserRepository;
 import com.blog.demo.service.PostService;
+import com.blog.demo.util.SecurityUtils;
 
 @Service
 public class PostServiceImpl implements PostService {
 	
 	private PostRepository postRepository;
 	
-	public PostServiceImpl(PostRepository postRepository) {
+	private UserRepository userRepository;
+	
+	public PostServiceImpl(PostRepository postRepository,
+							UserRepository userRepository) {
 		this.postRepository = postRepository;
+		this.userRepository = userRepository;
 	}
 	
 	public List<PostDto> findAllPosts(){
@@ -47,7 +55,11 @@ public class PostServiceImpl implements PostService {
 	
 	@Override
 	public void createPost(PostDto postDto) {
+		
+		String email = SecurityUtils.getCurrentUser().getUsername();
+		User user = userRepository.findByEmail(email);
 		Post post = PostMapper.mapToPost(postDto);
+		post.setCreatedBy(user);
 		postRepository.save(post);
 	}
 	
@@ -59,7 +71,11 @@ public class PostServiceImpl implements PostService {
 	
 	@Override
 	public void updatePost(PostDto postDto) {
+		
+		String email = SecurityUtils.getCurrentUser().getUsername();
+		User createdBy = userRepository.findByEmail(email);
 		Post post = PostMapper.mapToPost(postDto);
+		post.setCreatedBy(createdBy);
 		postRepository.save(post);
 	}
 	
@@ -79,5 +95,29 @@ public class PostServiceImpl implements PostService {
 		List<Post>posts = postRepository.searchPosts(query);
 		return posts.stream().map(PostMapper::mapToPostDto)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<PostDto> findPostsByUser() {
+		
+		String email = SecurityUtils.getCurrentUser().getUsername();
+		User createdBy = userRepository.findByEmail(email);
+		Long userId = createdBy.getId();
+		List<Post>posts = postRepository.findPostsByUser(userId);
+		return posts.stream()
+				.map((post) -> PostMapper.mapToPostDto(post))
+				.collect(Collectors.toList());
+		
+		/*
+		So post this basic list, it has a stream method and then let's call its map method.
+
+		All right, and let's use the lambda expression to implement function interface.
+
+		So let's have a object that is post jpa entity object and then lambda symbol and let's call post mapper
+
+		 it has mapToPostDto method and then pass post object as parameter
+
+		And finally let's call collect method to collect the result.
+		*/
 	}
 }
