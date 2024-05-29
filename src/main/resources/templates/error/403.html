@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Access Denied</title>
+</head>
+<body>
+<h2>You are not authorized to access this page</h2>
+<p>Click <a th:href="@{/}">Home</a>to go to home page</p>
+</body>
+</html>
+
+<!-- 
+spring boot provides a default white label error page has a lot of technical details and end user may not be able to understand these technical details.
+
+That why we have to create our own custom error page and we have to define a custom error message.
+
+-----------------------------------
+
+To display a custom error page in a spring boot and thymeleaf application just create a new thymeleaf template called error.html inside the
+src/main/resources/templates/ folder. 
+
+SpringBoot default BasicErrorController will automatically pick up this template and display it to the user whenever there is an error or exception
+
+Page Not Found - 404
+Access Denied - 403
+Internal Server - 500
+
+
+ -->
